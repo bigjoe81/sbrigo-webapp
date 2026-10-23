@@ -1,0 +1,452 @@
+<div class="min-h-screen bg-base-200/50">
+  <header class="border-b border-base-300 bg-base-100">
+    <nav
+      class="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-4 sm:px-8"
+      aria-label="Navigazione principale"
+    >
+      <a routerLink="/dashboard" aria-label="Sbrigo, panoramica"
+        ><img src="/brand/sbrigo-logo.png" class="h-9 w-auto" alt="Sbrigo"
+      /></a>
+      <a routerLink="/dashboard" class="btn btn-ghost btn-sm ml-auto">Panoramica</a>
+      <span class="rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary"
+        >Clienti e fornitori</span
+      >
+    </nav>
+  </header>
+  <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
+    <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-primary">
+          Le persone del tuo lavoro
+        </p>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Clienti e fornitori</h1>
+        <p class="mt-3 text-sm text-base-content/65">
+          Tutti i tuoi contatti, con le informazioni che servono.
+        </p>
+      </div>
+      <button type="button" class="btn btn-primary rounded-full px-6" (click)="open()">
+        + Nuova anagrafica
+      </button>
+    </div>
+    @if (notice()) {
+      <div role="status" class="alert alert-success mb-5">{{ notice() }}</div>
+    }
+    <section
+      class="rounded-3xl border border-base-300 bg-base-100 p-4 sm:p-6"
+      aria-label="Anagrafiche"
+    >
+      <div class="mb-6 flex flex-wrap items-center gap-3">
+        <label class="input w-full rounded-full sm:max-w-sm"
+          ><span aria-hidden="true">⌕</span
+          ><input
+            aria-label="Cerca anagrafiche"
+            placeholder="Cerca nome, email o partita IVA…"
+            [(ngModel)]="search"
+            (ngModelChange)="searchChanged()"
+        /></label>
+        <label class="flex items-center gap-2 text-sm"
+          ><span>Mostra</span
+          ><select
+            class="select rounded-full"
+            aria-label="Filtra per ruolo"
+            [(ngModel)]="filter"
+            (ngModelChange)="refresh()"
+          >
+            <option value="">Tutti</option>
+            <option value="customer">Clienti</option>
+            <option value="supplier">Fornitori</option>
+            <option value="both">Entrambi i ruoli</option>
+          </select></label
+        >
+        <span class="text-sm text-base-content/55 sm:ml-auto">{{ total() }} anagrafiche</span>
+      </div>
+      @if (error()) {
+        <div role="alert" class="alert alert-error">
+          <span>{{ error() }}</span
+          ><button class="btn btn-sm" (click)="retry()">Riprova</button>
+        </div>
+      } @else if (loading()) {
+        <div class="flex justify-center gap-3 py-16" role="status">
+          <span class="loading loading-spinner text-primary"></span>Caricamento anagrafiche…
+        </div>
+      } @else if (!contacts().length) {
+        <div class="py-16 text-center">
+          <span
+            class="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/10 text-3xl text-primary"
+            aria-hidden="true"
+            >♙</span
+          >
+          <h2 class="mt-5 text-xl font-semibold">
+            {{ search || filter ? 'Nessuna corrispondenza' : 'Iniziamo dal primo contatto' }}
+          </h2>
+          <p class="mx-auto mt-2 max-w-md text-sm text-base-content/65">
+            {{
+              search || filter
+                ? 'Prova a cambiare la ricerca o il filtro.'
+                : 'Basta un nome per partire. Puoi aggiungere gli altri dettagli quando vuoi.'
+            }}
+          </p>
+          @if (!search && !filter) {
+            <button class="btn btn-primary mt-6 rounded-full" (click)="open()">
+              Aggiungi un contatto
+            </button>
+          }
+        </div>
+      } @else {
+        <ul class="divide-y divide-base-200">
+          @for (contact of contacts(); track contact.id) {
+            <li class="flex flex-wrap items-center gap-4 py-5">
+              <span
+                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 font-semibold text-primary"
+                aria-hidden="true"
+                >{{ contact.name.slice(0, 1).toUpperCase() }}</span
+              >
+              <button
+                class="min-w-0 flex-1 cursor-pointer text-left"
+                (click)="open(contact)"
+                [attr.aria-label]="'Apri ' + contact.name"
+              >
+                <strong class="block break-words text-base">{{ contact.name }}</strong
+                ><span class="mt-1 block text-sm text-base-content/60">{{
+                  contact.email || contact.phone || contact.city || 'Recapiti da aggiungere'
+                }}</span>
+              </button>
+              <span class="badge badge-soft badge-primary">{{ roles[contact.type] }}</span>
+              <div class="flex gap-1">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm"
+                  (click)="open(contact)"
+                  [attr.aria-label]="'Modifica ' + contact.name"
+                >
+                  Modifica</button
+                ><button
+                  type="button"
+                  class="btn btn-ghost btn-sm text-error"
+                  (click)="selected.set(contact)"
+                  [attr.aria-label]="'Elimina ' + contact.name"
+                >
+                  Elimina
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+        <div class="mt-5 flex items-center justify-between border-t border-base-200 pt-5">
+          <button class="btn btn-ghost btn-sm" [disabled]="page <= 1" (click)="changePage(-1)">
+            ← Precedente</button
+          ><span class="text-sm">{{ page }} / {{ lastPage() }}</span
+          ><button
+            class="btn btn-ghost btn-sm"
+            [disabled]="page >= lastPage()"
+            (click)="changePage(1)"
+          >
+            Successiva →
+          </button>
+        </div>
+      }
+    </section>
+  </main>
+</div>
+@if (editorOpen()) {
+  <dialog
+    #editorDialog
+    class="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none overflow-y-auto border-0 bg-base-100 text-base-content"
+    aria-labelledby="editor-title"
+    (cancel)="saving() ? $event.preventDefault() : editorOpen.set(false)"
+  >
+    <div class="mx-auto max-w-2xl px-5 py-6 sm:px-8 sm:py-10">
+      <div class="flex items-center justify-between gap-3">
+        <a routerLink="/dashboard" [attr.tabindex]="saving() ? -1 : 0"
+          ><img src="/brand/sbrigo-logo.png" class="h-8" alt="Sbrigo" /></a
+        ><button
+          type="button"
+          class="btn btn-ghost rounded-full"
+          [disabled]="saving()"
+          (click)="editorOpen.set(false)"
+        >
+          Chiudi ✕
+        </button>
+      </div>
+      <p class="mt-10 text-sm text-primary">
+        {{ editingId ? 'Modifica anagrafica' : 'Nuova anagrafica' }} · Passaggio {{ step() + 1 }} di
+        3
+      </p>
+      <h2 id="editor-title" class="mt-2 text-3xl font-semibold">{{ steps[step()] }}</h2>
+      <p class="mt-3 text-sm text-base-content/65">
+        {{
+          step() === 0
+            ? 'Partiamo dalle presentazioni. Gli altri dettagli sono facoltativi.'
+            : step() === 1
+              ? 'Aggiungi i recapiti e l’indirizzo, anche in un secondo momento.'
+              : 'Completa i dati per la fatturazione, se li hai a portata di mano.'
+        }}
+      </p>
+      <progress
+        class="progress progress-primary mt-6 w-full"
+        [value]="step() + 1"
+        max="3"
+        aria-label="Avanzamento inserimento"
+      ></progress>
+      <form
+        #contactForm="ngForm"
+        class="mt-8"
+        (ngSubmit)="step() < 2 ? next(contactForm) : save(contactForm)"
+      >
+        <fieldset [disabled]="saving()" class="grid gap-5 sm:grid-cols-2">
+          @if (step() === 0) {
+            <label class="fieldset sm:col-span-2"
+              ><span class="fieldset-legend">Nome o ragione sociale *</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="name"
+                [(ngModel)]="draft.name"
+                maxlength="255"
+                required
+                pattern=".*\S.*"
+                #nameField="ngModel"
+              />
+              @if (nameField.invalid && nameField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">Tipo di contatto</span
+              ><select
+                class="select w-full rounded-xl"
+                name="entity_type"
+                [(ngModel)]="draft.entity_type"
+              >
+                <option value="company">Azienda / professionista</option>
+                <option value="person">Persona fisica</option>
+              </select></label
+            >
+            <label class="fieldset sm:col-span-2"
+              ><span class="fieldset-legend">Rapporto</span
+              ><select class="select w-full rounded-xl" name="type" [(ngModel)]="draft.type">
+                <option value="customer">Cliente</option>
+                <option value="supplier">Fornitore</option>
+                <option value="both">Cliente e fornitore</option>
+              </select></label
+            >
+          }
+          @if (step() === 1) {
+            <label class="fieldset"
+              ><span class="fieldset-legend">Email</span
+              ><input
+                class="input w-full rounded-xl"
+                type="email"
+                name="email"
+                [(ngModel)]="draft.email"
+                maxlength="255"
+                #emailField="ngModel"
+              />
+              @if (emailField.invalid && emailField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">Telefono</span
+              ><input
+                class="input w-full rounded-xl"
+                type="tel"
+                name="phone"
+                [(ngModel)]="draft.phone"
+                maxlength="50"
+                #phoneField="ngModel"
+              />
+              @if (phoneField.invalid && phoneField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset sm:col-span-2"
+              ><span class="fieldset-legend">Indirizzo</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="address"
+                [(ngModel)]="draft.address"
+                maxlength="255"
+                #addressField="ngModel"
+              />
+              @if (addressField.invalid && addressField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">CAP</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="postal_code"
+                [(ngModel)]="draft.postal_code"
+                maxlength="20"
+                #postal_codeField="ngModel"
+              />
+              @if (postal_codeField.invalid && postal_codeField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">Città</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="city"
+                [(ngModel)]="draft.city"
+                maxlength="100"
+                #cityField="ngModel"
+              />
+              @if (cityField.invalid && cityField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">Provincia</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="province"
+                [(ngModel)]="draft.province"
+                maxlength="100"
+                #provinceField="ngModel"
+              />
+              @if (provinceField.invalid && provinceField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">Paese (codice di 2 lettere) *</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="country"
+                [(ngModel)]="draft.country"
+                maxlength="2"
+                required
+                pattern="[A-Za-z]{2}"
+                #countryField="ngModel"
+              />
+              @if (countryField.invalid && countryField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+          }
+          @if (step() === 2) {
+            <label class="fieldset"
+              ><span class="fieldset-legend">Partita IVA</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="vat_number"
+                [(ngModel)]="draft.vat_number"
+                maxlength="32"
+                #vat_numberField="ngModel"
+              />
+              @if (vat_numberField.invalid && vat_numberField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">Codice fiscale</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="tax_code"
+                [(ngModel)]="draft.tax_code"
+                maxlength="32"
+                #tax_codeField="ngModel"
+              />
+              @if (tax_codeField.invalid && tax_codeField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">PEC</span
+              ><input
+                class="input w-full rounded-xl"
+                type="email"
+                name="pec"
+                [(ngModel)]="draft.pec"
+                maxlength="255"
+                #pecField="ngModel"
+              />
+              @if (pecField.invalid && pecField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset"
+              ><span class="fieldset-legend">Codice destinatario SDI</span
+              ><input
+                class="input w-full rounded-xl"
+                type="text"
+                name="sdi_code"
+                [(ngModel)]="draft.sdi_code"
+                maxlength="7"
+                #sdi_codeField="ngModel"
+              />
+              @if (sdi_codeField.invalid && sdi_codeField.touched) {
+                <span class="text-error">Controlla questo campo.</span>
+              }
+            </label>
+            <label class="fieldset sm:col-span-2"
+              ><span class="fieldset-legend">Note</span
+              ><textarea
+                class="textarea w-full rounded-xl"
+                rows="4"
+                maxlength="5000"
+                name="notes"
+                [(ngModel)]="draft.notes"
+              ></textarea>
+            </label>
+          }
+        </fieldset>
+        @if (formError()) {
+          <div role="alert" class="alert alert-error mt-6">{{ formError() }}</div>
+        }
+        @for (entry of serverErrors(); track entry[0]) {
+          <p class="mt-2 text-sm text-error">{{ entry[1].join(' ') }}</p>
+        }
+        <div class="mt-10 flex items-center justify-between border-t border-base-300 pt-6">
+          <button
+            type="button"
+            class="btn btn-ghost rounded-full"
+            [disabled]="saving()"
+            (click)="step() ? step.set(step() - 1) : editorOpen.set(false)"
+          >
+            {{ step() ? '← Indietro' : 'Annulla' }}
+          </button>
+          <button class="btn btn-primary rounded-full px-7" type="submit" [disabled]="saving()">
+            @if (saving()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            }
+            {{ step() < 2 ? 'Continua →' : 'Salva anagrafica' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+}
+@if (selected(); as contact) {
+  <dialog
+    #deleteDialog
+    class="modal"
+    aria-labelledby="delete-title"
+    (cancel)="deleting() ? $event.preventDefault() : selected.set(null)"
+  >
+    <div class="modal-box rounded-3xl">
+      <h2 id="delete-title" class="text-xl font-semibold">Eliminare {{ contact.name }}?</h2>
+      <p class="mt-3 text-sm">
+        L’anagrafica verrà eliminata definitivamente. Questa azione non può essere annullata.
+      </p>
+      <div class="modal-action">
+        <button class="btn btn-ghost" [disabled]="deleting()" (click)="selected.set(null)">
+          Annulla</button
+        ><button class="btn btn-error" [disabled]="deleting()" (click)="remove()">
+          {{ deleting() ? 'Eliminazione…' : 'Elimina' }}
+        </button>
+      </div>
+    </div>
+  </dialog>
+}
