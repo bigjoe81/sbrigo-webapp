@@ -9,7 +9,7 @@
       <ul class="menu w-full gap-1 p-0">
         <li><a class="active bg-primary-content font-semibold text-primary"><span class="text-lg">◫</span>Panoramica</a></li>
         <li><a class="pointer-events-none text-primary-content/75"><span class="text-lg">◷</span>Attività <span class="badge badge-ghost badge-xs ml-auto border-primary-content/30 text-primary-content/70">PRESTO</span></a></li>
-        <li><a class="pointer-events-none text-primary-content/75"><span class="text-lg">♙</span>Clienti <span class="badge badge-ghost badge-xs ml-auto border-primary-content/30 text-primary-content/70">PRESTO</span></a></li>
+        <li><a routerLink="/contacts" class="text-primary-content/90"><span class="text-lg">♙</span>Clienti e fornitori</a></li>
         <li><a class="pointer-events-none text-primary-content/75"><span class="text-lg">▤</span>Documenti <span class="badge badge-ghost badge-xs ml-auto border-primary-content/30 text-primary-content/70">PRESTO</span></a></li>
       </ul>
     </div>
@@ -36,6 +36,7 @@
   </aside>
 
   <main class="min-w-0 flex-1 lg:ml-64">
+    <a routerLink="/contacts" class="btn btn-primary btn-sm m-4 lg:hidden">Clienti e fornitori →</a>
     <header class="navbar min-h-0 border-b border-base-300 bg-base-100 px-5 py-3 sm:px-8 lg:px-12">
       <div class="flex-1 text-xs text-base-content/55">
         Il tuo spazio <span class="mx-2 text-base-content/25">/</span> <strong class="font-semibold text-base-content/80">Panoramica</strong>

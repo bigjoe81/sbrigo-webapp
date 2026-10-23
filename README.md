@@ -32,6 +32,8 @@ L'API Laravel implementa OTP via email e sessioni cookie Sanctum:
 | GET | `/api/user` | Richiede sessione; restituisce `{ "user": { ... } }` |
 | POST | `/api/logout` | Richiede sessione e la invalida |
 | GET | `/api/admin/users` | Richiede sessione e permesso `manage-users` |
+| GET / POST | `/api/contacts` | Elenco paginato con ricerca/filtro e creazione anagrafiche |
+| GET / PUT / PATCH / DELETE | `/api/contacts/{id}` | Lettura, modifica ed eliminazione delle proprie anagrafiche |
 
 Il client richiede il cookie CSRF prima delle richieste che modificano dati e
 invia cookie e header XSRF con credenziali. Il backend limita le origini CORS a

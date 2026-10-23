@@ -22,5 +22,10 @@ export const routes: Routes = [
     component: DashboardPage,
     canActivate: [authGuard],
   },
+  {
+    path: 'contacts',
+    loadComponent: () => import('./pages/contacts/contacts').then((m) => m.ContactsPage),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: 'dashboard' },
 ];
