@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: sbrigo --default;
+}
+
+@plugin "daisyui/theme" {
+  name: "sbrigo";
+  default: true;
+  color-scheme: light;
+  --color-primary: #834edb;
+  --color-primary-content: #ffffff;
+  --color-secondary: #ff4f79;
+  --color-secondary-content: #24131a;
+  --color-accent: #33658a;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1E1B2E;
+  --color-neutral-content: #ffffff;
+  --color-base-100: #fffcf9;
+  --color-base-200: #f7f2ec;
+  --color-base-300: #e9dfd7;
+  --color-base-content: #33658a;
+  --color-info: #33658a;
+  --color-info-content: #ffffff;
+  --color-success: #23ce6b;
+  --color-success-content: #102719;
+  --color-warning: #ff4f79;
+  --color-warning-content: #24131a;
+  --color-error: #ff4f79;
+  --color-error-content: #24131a;
+}
+
+@theme {
+  --font-sans: Inter, "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--color-primary) 35%, transparent);
+  outline-offset: 2px;
+}

@@ -1,0 +1,157 @@
+<main class="grid min-h-screen bg-base-100 lg:grid-cols-2">
+  <section class="relative hidden min-h-screen overflow-hidden bg-neutral px-12 py-10 text-white lg:flex lg:flex-col lg:justify-between xl:px-20">
+    <div class="pointer-events-none absolute -right-32 -bottom-28 size-[28rem] rounded-full border border-white/10 shadow-[0_0_0_42px_rgba(255,255,255,0.025),0_0_0_84px_rgba(255,255,255,0.025)]"></div>
+    <a class="relative z-10 inline-flex w-fit items-center gap-3 text-2xl font-bold tracking-tight text-inherit no-underline" routerLink="/login">
+      <img class="size-9" src="/brand/sbrigo-icon.png" alt="" />
+      <span class="text-white">sbrigo</span>
+    </a>
+
+    <div class="relative z-10 max-w-lg py-20">
+      <span class="badge badge-secondary text-[10px] font-bold tracking-[.16em]">IL TUO LAVORO, IN ORDINE</span>
+      <h1 class="mt-6 text-5xl leading-[1.05] font-semibold tracking-[-.055em] xl:text-6xl">Sbrigo.<br />Meno sbatti,<br />più fatti.</h1>
+      <p class="mt-5 max-w-sm text-sm leading-7 text-white/65">
+        Il gestionale semplice per tenere sotto controllo clienti, attività e giornate di lavoro.
+      </p>
+      <div class="mt-10 flex items-center gap-3 text-sm text-white/80">
+        <span class="badge badge-secondary badge-sm">✓</span>
+        Una scrivania più leggera, ogni giorno.
+      </div>
+    </div>
+
+    <div class="relative z-10 flex justify-between text-xs text-white/45">
+      <span>© 2026 Sbrigo</span>
+      <span>Fatto per semplificare.</span>
+    </div>
+  </section>
+
+  <section class="flex min-h-screen flex-col items-center px-6 py-8 sm:px-10 lg:justify-center">
+    <a class="mb-12 inline-flex w-fit self-start no-underline lg:hidden" routerLink="/login" aria-label="Sbrigo, pagina di accesso">
+      <img class="h-11 w-auto" src="/brand/sbrigo-logo.png" alt="Sbrigo" />
+    </a>
+
+    <div class="card w-full max-w-md bg-base-100">
+      <div class="card-body gap-0 p-0">
+        <span class="text-[10px] font-bold tracking-[.16em] text-secondary">
+          {{ registrationPending() ? 'VERIFICA EMAIL' : (mode() === 'login' ? 'BENTORNATO' : 'INIZIA DA QUI') }}
+        </span>
+        <h2 class="card-title mt-3 text-3xl font-semibold tracking-tight text-base-content">
+          {{ otpSent() ? (registrationPending() ? 'Conferma la tua email' : 'Controlla la tua email') : (mode() === 'login' ? 'Accedi al tuo spazio' : 'Crea il tuo account') }}
+        </h2>
+        <p class="mt-2 text-sm leading-6 text-base-content/60">
+          @if (otpSent()) {
+            {{ registrationPending() ? 'Inserisci il codice inviato per verificare l’indirizzo e completare la registrazione.' : 'Ti abbiamo inviato un codice di accesso temporaneo.' }}
+          } @else if (mode() === 'login') {
+            Ricevi un codice monouso via email: niente password da ricordare.
+          } @else {
+            Bastano pochi dati per mettere tutto in ordine.
+          }
+        </p>
+
+        @if (mode() === 'login' || registrationPending()) {
+          <form class="mt-8 grid gap-5" [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+            @if (!otpSent()) {
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend text-xs font-semibold">Indirizzo email</legend>
+                <input
+                  class="input input-bordered w-full"
+                  type="email"
+                  formControlName="email"
+                  autocomplete="email"
+                  placeholder="nome@azienda.it"
+                  required
+                />
+                @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
+                  <p class="label text-error">Inserisci un indirizzo email valido.</p>
+                }
+              </fieldset>
+            } @else {
+              <div class="alert border-base-300 bg-base-200/60 py-3 text-sm">
+                <span class="text-base-content/60">Codice inviato a</span>
+                <strong class="break-all">{{ loginForm.controls.email.value }}</strong>
+                @if (!registrationPending()) {
+                  <button class="btn btn-ghost btn-xs ml-auto" type="button" (click)="resetOtp()">Modifica</button>
+                }
+              </div>
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend text-xs font-semibold">Codice di verifica</legend>
+                <input
+                  class="input input-bordered w-full text-center text-xl tracking-[.5em]"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  formControlName="code"
+                  placeholder="······"
+                  maxlength="6"
+                  required
+                />
+                @if (loginForm.controls.code.touched && loginForm.controls.code.invalid) {
+                  <p class="label text-error">Inserisci il codice numerico di 6 cifre.</p>
+                }
+              </fieldset>
+              <button class="btn btn-link btn-xs justify-self-start px-0 text-primary" type="button" [disabled]="submitting()" (click)="resendOtp()">
+                Invia un nuovo codice
+              </button>
+            }
+
+            @if (errorMessage()) {
+              <div class="alert alert-error text-sm" role="alert">{{ errorMessage() }}</div>
+            }
+
+            <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="loading loading-spinner loading-sm"></span>
+                Attendi...
+              } @else {
+                {{ otpSent() ? 'Verifica e accedi' : 'Invia il codice' }}
+                <span aria-hidden="true">→</span>
+              }
+            </button>
+          </form>
+        } @else {
+          <form class="mt-8 grid gap-4" [formGroup]="registrationForm" (ngSubmit)="submit()" novalidate>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend text-xs font-semibold">Nome e cognome</legend>
+              <input class="input input-bordered w-full" type="text" formControlName="name" autocomplete="name" placeholder="Es. Giulia Rossi" required />
+              @if (registrationForm.controls.name.touched && !registrationForm.controls.name.value.trim()) {
+                <p class="label text-error">Inserisci il tuo nome.</p>
+              }
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend text-xs font-semibold">Indirizzo email</legend>
+              <input class="input input-bordered w-full" type="email" formControlName="email" autocomplete="email" placeholder="nome@azienda.it" required />
+              @if (registrationForm.controls.email.touched && registrationForm.controls.email.invalid) {
+                <p class="label text-error">Inserisci un indirizzo email valido.</p>
+              }
+            </fieldset>
+
+            @if (errorMessage()) {
+              <div class="alert alert-error text-sm" role="alert">{{ errorMessage() }}</div>
+            }
+            <button class="btn btn-primary mt-1" type="submit" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="loading loading-spinner loading-sm"></span>
+                Attendi...
+              } @else {
+                Crea account <span aria-hidden="true">→</span>
+              }
+            </button>
+          </form>
+        }
+
+        @if (!registrationPending()) {
+          <p class="mt-7 text-center text-xs text-base-content/60">
+            {{ mode() === 'login' ? 'Non hai ancora un account?' : 'Hai già un account?' }}
+            <a class="ml-1 font-bold text-primary no-underline hover:underline" [routerLink]="mode() === 'login' ? '/register' : '/login'">
+              {{ mode() === 'login' ? 'Registrati' : 'Accedi' }}
+            </a>
+          </p>
+        }
+      </div>
+    </div>
+
+    <p class="mt-10 text-center text-xs text-base-content/50">
+      <span class="mr-1 text-success" aria-hidden="true">⌑</span>
+      Interfaccia in sviluppo: non usare ancora Sbrigo per dati operativi reali.
+    </p>
+  </section>
+</main>

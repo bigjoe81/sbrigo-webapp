@@ -1,0 +1,152 @@
+<div class="min-h-screen bg-base-200/50 lg:flex">
+  <aside class="navbar min-h-0 border-b border-primary-content/15 bg-[#17192f] px-5 py-3 text-primary-content lg:fixed lg:inset-y-0 lg:left-0 lg:z-10 lg:w-64 lg:flex-col lg:items-stretch lg:border-r lg:border-b-0 lg:px-4 lg:py-7">
+    <a class="inline-flex items-center rounded-lg bg-base-100 px-2 py-1 no-underline" routerLink="/dashboard" aria-label="Sbrigo, panoramica">
+      <img class="h-9 w-auto" src="/brand/sbrigo-logo.png" alt="Sbrigo" />
+    </a>
+
+    <div class="hidden pt-12 lg:block">
+      <p class="px-3 pb-3 text-[10px] font-bold tracking-[.15em] text-primary-content/65">IL TUO SPAZIO</p>
+      <ul class="menu w-full gap-1 p-0">
+        <li><a class="active bg-primary-content font-semibold text-primary"><span class="text-lg">◫</span>Panoramica</a></li>
+        <li><a class="pointer-events-none text-primary-content/75"><span class="text-lg">◷</span>Attività <span class="badge badge-ghost badge-xs ml-auto border-primary-content/30 text-primary-content/70">PRESTO</span></a></li>
+        <li><a class="pointer-events-none text-primary-content/75"><span class="text-lg">♙</span>Clienti <span class="badge badge-ghost badge-xs ml-auto border-primary-content/30 text-primary-content/70">PRESTO</span></a></li>
+        <li><a class="pointer-events-none text-primary-content/75"><span class="text-lg">▤</span>Documenti <span class="badge badge-ghost badge-xs ml-auto border-primary-content/30 text-primary-content/70">PRESTO</span></a></li>
+      </ul>
+    </div>
+
+    <div class="hidden lg:mt-auto lg:block">
+      <div class="card border border-primary-content/20 bg-primary-content/10">
+        <div class="card-body gap-2 p-4">
+          <span class="grid size-7 place-items-center rounded-lg bg-primary-content/15 text-primary-content">✳</span>
+          <strong class="text-xs">Un passo alla volta</strong>
+          <p class="text-xs leading-5 text-primary-content/75">Il tuo spazio di lavoro è pronto per partire.</p>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center gap-3 border-t border-primary-content/20 pt-4">
+        <span class="avatar placeholder">
+          <span class="size-9 rounded-full bg-primary-content/15 text-sm text-primary-content">{{ firstName().slice(0, 1).toUpperCase() }}</span>
+        </span>
+        <span class="min-w-0 flex-1">
+          <strong class="block truncate text-xs">{{ user()?.name }}</strong>
+          <small class="block truncate text-[10px] text-primary-content/70">{{ user()?.email }}</small>
+        </span>
+        <button class="btn btn-ghost btn-sm btn-square text-primary-content hover:bg-primary-content/15" type="button" aria-label="Esci" title="Esci" [disabled]="signingOut()" (click)="logout()">↗</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="min-w-0 flex-1 lg:ml-64">
+    <header class="navbar min-h-0 border-b border-base-300 bg-base-100 px-5 py-3 sm:px-8 lg:px-12">
+      <div class="flex-1 text-xs text-base-content/55">
+        Il tuo spazio <span class="mx-2 text-base-content/25">/</span> <strong class="font-semibold text-base-content/80">Panoramica</strong>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="hidden text-[10px] font-bold tracking-wider text-base-content/50 sm:inline">VENERDÌ, 23 OTTOBRE 2026</span>
+        <span class="avatar placeholder">
+          <span class="size-8 rounded-full bg-secondary/15 text-xs text-primary">{{ firstName().slice(0, 1).toUpperCase() }}</span>
+        </span>
+        <button class="btn btn-ghost btn-sm lg:hidden" type="button" [disabled]="signingOut()" (click)="logout()">Esci</button>
+      </div>
+    </header>
+
+    <div class="mx-auto max-w-[1440px] p-5 sm:p-8 lg:p-12">
+      @if (logoutError()) {
+        <div class="alert alert-error mb-5 text-sm" role="alert">{{ logoutError() }}</div>
+      }
+
+      <section class="mb-7 flex items-end justify-between gap-5">
+        <div>
+          <span class="text-[10px] font-bold tracking-[.15em] text-base-content/45">LA TUA GIORNATA, A COLPO D'OCCHIO</span>
+          <h1 class="mt-2 text-3xl font-semibold tracking-tight text-primary sm:text-4xl">Buongiorno, {{ firstName() }} <span class="text-secondary">✳</span></h1>
+          <p class="mt-2 text-sm text-base-content/60">Qui trovi tutto quello che ti serve per partire con il piede giusto.</p>
+        </div>
+        <div class="card hidden border border-base-300 bg-base-100 sm:block">
+          <div class="card-body gap-1 px-4 py-3">
+            <span class="text-[9px] font-bold tracking-widest text-base-content/45">SETTIMANA</span>
+            <strong class="text-lg">43 <small class="text-xs font-normal text-base-content/50">/ 52</small></strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats stats-vertical w-full border border-base-300 bg-base-100 shadow-sm sm:stats-horizontal" aria-label="Riepilogo attività dimostrativo">
+        <div class="stat px-5 py-4">
+          <div class="stat-title text-xs">Attività aperte</div>
+          <div class="stat-value text-3xl text-primary">12</div>
+          <div class="stat-desc text-accent">↗ 3 rispetto alla settimana scorsa</div>
+        </div>
+        <div class="stat px-5 py-4">
+          <div class="stat-title text-xs">Da completare oggi</div>
+          <div class="stat-value text-3xl text-primary">4</div>
+          <div class="stat-desc">2 con priorità alta</div>
+        </div>
+        <div class="stat px-5 py-4">
+          <div class="stat-title text-xs">Clienti attivi</div>
+          <div class="stat-value text-3xl text-primary">28</div>
+          <div class="stat-desc text-accent">↗ 2 questo mese</div>
+        </div>
+        <div class="stat px-5 py-4">
+          <div class="stat-title text-xs">Completate</div>
+          <div class="stat-value text-3xl text-primary">36</div>
+          <div class="stat-desc">in questo mese</div>
+        </div>
+      </section>
+
+      <section class="mt-5 grid gap-5 xl:grid-cols-[1.6fr_.9fr]">
+        <article class="card border border-base-300 bg-base-100 shadow-sm">
+          <div class="card-body p-5 sm:p-6">
+            <div class="mb-2 flex items-center justify-between">
+              <div>
+                <span class="text-[9px] font-bold tracking-[.15em] text-base-content/45">DA TENERE D'OCCHIO</span>
+                <h2 class="mt-1 text-base font-semibold">Attività in evidenza</h2>
+              </div>
+              <button class="btn btn-ghost btn-sm text-primary" type="button" disabled>Vedi tutte →</button>
+            </div>
+            <ul class="list">
+              <li class="list-row grid grid-cols-[auto_1fr_auto] items-center gap-3 border-base-200 px-0">
+                <span class="badge badge-error badge-xs"></span>
+                <div><strong class="block text-xs">Inviare il preventivo aggiornato</strong><span class="mt-1 block text-[10px] text-base-content/55">Studio Fiorito · Oggi, 14:00</span></div>
+                <span class="badge badge-error badge-soft badge-sm">Priorità alta</span>
+              </li>
+              <li class="list-row grid grid-cols-[auto_1fr_auto] items-center gap-3 border-base-200 px-0">
+                <span class="badge badge-ghost badge-xs"></span>
+                <div><strong class="block text-xs">Preparare i materiali per la riunione</strong><span class="mt-1 block text-[10px] text-base-content/55">Officina Nord · Oggi, 16:30</span></div>
+                <span class="badge badge-ghost badge-sm">In corso</span>
+              </li>
+              <li class="list-row grid grid-cols-[auto_1fr_auto] items-center gap-3 border-base-200 px-0">
+                <span class="badge badge-success badge-xs"></span>
+                <div><strong class="block text-xs">Confermare l'appuntamento</strong><span class="mt-1 block text-[10px] text-base-content/55">Giulia Bianchi · Completata</span></div>
+                <span class="badge badge-success badge-soft badge-sm">Completata</span>
+              </li>
+              <li class="list-row grid grid-cols-[auto_1fr_auto] items-center gap-3 border-base-200 px-0">
+                <span class="badge badge-ghost badge-xs"></span>
+                <div><strong class="block text-xs">Rivedere la fattura di settembre</strong><span class="mt-1 block text-[10px] text-base-content/55">Amministrazione · Domani</span></div>
+                <span class="badge badge-ghost badge-sm">Da iniziare</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <aside class="card border border-base-300 bg-base-100 shadow-sm">
+          <div class="card-body p-5 sm:p-6">
+            <div>
+              <span class="text-[9px] font-bold tracking-[.15em] text-base-content/45">IL TUO RITMO</span>
+              <h2 class="mt-1 text-base font-semibold">Questa settimana</h2>
+            </div>
+            <div class="my-4 flex items-center gap-4">
+              <div class="radial-progress text-accent" style="--value:72; --size:4.5rem; --thickness:.4rem;" role="progressbar" aria-label="72 per cento completato">72%</div>
+              <div><strong class="text-sm">Bel lavoro!</strong><p class="mt-1 max-w-40 text-xs leading-5 text-base-content/60">Hai completato il 72% delle attività previste.</p></div>
+            </div>
+            <div class="flex justify-between text-xs"><span class="text-base-content/60">Attività completate</span><strong>18 <span class="font-normal text-base-content/50">/ 25</span></strong></div>
+            <progress class="progress progress-secondary mt-2 w-full" value="72" max="100" aria-label="Attività completate"></progress>
+            <div class="stats stats-horizontal mt-4 border-t border-base-200 bg-transparent">
+              <div class="stat px-2 py-3"><div class="stat-value text-lg">18</div><div class="stat-title text-[10px]">Completate</div></div>
+              <div class="stat px-2 py-3"><div class="stat-value text-lg">5</div><div class="stat-title text-[10px]">In corso</div></div>
+              <div class="stat px-2 py-3"><div class="stat-value text-lg">2</div><div class="stat-title text-[10px]">In attesa</div></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+      <p class="mt-4 text-right text-[10px] text-base-content/45">Riepilogo dimostrativo · Collega le tue attività per iniziare.</p>
+    </div>
+  </main>
+</div>
